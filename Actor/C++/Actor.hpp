@@ -1,3 +1,5 @@
+#infdef Actor
+#define Actor
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_rect.h>
@@ -1058,3 +1060,4 @@ public:
         return SDL_HasRectIntersection(&actorrect, &collisionrect);
     }
 };
+#endif Actor
