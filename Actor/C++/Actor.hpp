@@ -1,5 +1,6 @@
 ﻿#pragma once
 #define _USE_MATH_DEFINES // math shit
+#include <cmath>
 #include <iostream>
 #include <filesystem>
 //CUSTOM API
@@ -123,7 +124,7 @@ public:
     /*
     angle in radians, in a 0-360 range
     */
-    double rads = fmod(angle, 360.0f) * (M_PI / 180.0f);
+    double rads = fmod(angle, 360.0f) * (3.1415926535897932384626433832795028841 / 180.0f);
     /*
     sets the width and height of the image and displays an error message is the images cannot be loaded
     */

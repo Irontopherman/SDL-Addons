@@ -5,8 +5,10 @@
 Visual Studio:
 To include this in visual studio is very simple.
 All you need is SDL and SDL_image included in you project.
-All you need to do is to put the header and c++ file into
-the header file section and include it like this: #include "Actor.hpp"
+What you need to do is right click on your project, click 
+properties in the dropdown menu, click on "VC++ Directories",
+click on "Include Directories" and add your path to the headers
+(should be something like "C:whatever/SDL-Addons/Actor/C++")
 
 
 ▀█▀ █▀█   █░█ █▀ █▀▀
