@@ -1,0 +1,124 @@
+
+
+█ █▄░█ █▀▀ █░░ █░█ █▀▄ █▀▀
+█ █░▀█ █▄▄ █▄▄ █▄█ █▄▀ ██▄
+Visual Studio:
+To include this in visual studio is very simple.
+All you need is SDL and SDL_image included in you project.
+All you need to do is to put the header and c++ file into
+the header file section and include it like this: #include "Actor.hpp"
+
+
+▀█▀ █▀█   █░█ █▀ █▀▀
+░█░ █▄█   █▄█ ▄█ ██▄
+
+Actors are defined like this:
+
+Image name 
+**IMPORTANT**: IMAGES ARE GOTTEN FROM AN IMAGES FOLDER IN THE RUNNING DIRECTORY
+X,
+Y,
+Angle,
+Scale,
+;
+
+
+█▀▀ ▄█▄ ▄█▄
+█▄▄ ░▀░ ░▀░
+
+
+
+
+Functions: 
+
+    sees if a single triangle collides with another triangle and returen the first collision point as a pointer.    
+    bool singletricollide(const SDL_Vertex* tri1, const SDL_Vertex* tri2, SDL_FPoint* intersectionPoint);
+    
+
+    This function is built to place corners and front center points so that
+    other calculations can creat triangles and other various uses. This
+    function does have some expensive math, so it is left out for simple
+    actors, and only works for normal and complex actors
+    void rotatecollide();
+    
+
+    this function goes thorugh all pixels in a image
+    and if theyhave an alpha channel greater than one
+    it adds that value as 1 to a bitmap, else it will
+    make it 0. One of the more expensize math functions,
+    and cannot be used on simple actors, because the
+    function uses some expensize math. Takes about 14
+    milliseconds to work, so performance could be better
+    void init_good_collide();
+
+    
+    draws a persice line using SDL_RenderGeometry
+    Does have some displacement issues, but overall
+    better for lines than default function.
+    void drawline(SDL_Renderer* renderer, SDL_FPoint p1, SDL_FPoint p2, float thickness, SDL_FColor color);
+
+    
+    simple algebra function to see if
+    two lines intersect, used in goodcollide
+    to find the area of bitmap overlap checking
+    bool lineintersect(const SDL_FPoint& a1, const SDL_FPoint& a2,
+        const SDL_FPoint& b1, const SDL_FPoint& b2,
+        SDL_FPoint& intersectionPoint);
+    
+
+    converts from a screen pixel to the bitmap coordinate that corrosponds to it to it
+    void scrn_to_bmp_px(int p_x, int p_y, int& exit_x, int& exit_y);
+
+
+    bool pointinpolygon(const std::vector<SDL_FPoint>& polygon, const SDL_FPoint& p);
+
+
+    std::vector<SDL_FPoint> getallpolypoints(const std::vector<SDL_FPoint>& polygon, float step = 1.0f);
+
+
+    std::vector<SDL_FPoint> convex_hull(std::vector<SDL_FPoint> pts);
+
+
+    bool testbasiccollide(Actor& collider);
+    
+
+    finds all points where two actors intersect with a rectangle on
+    the outside of the image then loops through all collision points
+    and compares them to the bitmap of the actor to see if the
+    bitmaps collide, which means it ignores clear pixels. This function
+    is very very slow currently, cannot be used with simple actors, will
+    throw logic error if you try to use it with one.
+    TL;DR: false of they dont collide, true if the opaque parts of the sprites do collide
+    bool goodcollide(Actor& collider);
+    
+
+    update function for actors will not be drawn but still need math and updates
+    void update(SDL_Renderer* renderer);
+    
+
+    creates the texture of the actor that will be drawn to the screen if the texture has changed
+    void maketextture(SDL_Renderer* renderer);
+    
+
+    renders debug information about the sprite
+    void renderdebug(SDL_Renderer* renderer);
+
+
+    bool tricollpnt(const SDL_FPoint& p, const SDL_FPoint& a, const SDL_FPoint& b, const SDL_FPoint& c);
+    
+
+    quickly and easily draw actor to specified renderer
+    automatically creating texture, texture coordnates,
+    x and y calculations, and image data.
+    TL;DR: draws actor to renderer
+    void quickdraw(SDL_Renderer* renderer);
+    
+
+    draws all points and simpe collision of the actor
+    void drawcollide(SDL_Renderer* renderer, int R, int G, int B, int A = 255);
+
+    
+    basic rectangle collision, ignores angle, bitmap, and direction.
+    
+
+    bool rectcollide(SDL_FRect colliderect);
