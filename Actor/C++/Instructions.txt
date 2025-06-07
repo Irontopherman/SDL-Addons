@@ -13,8 +13,8 @@ the cpp and header files from the repo into there.
 
 
 2. At the top of the visual studio window there will be A
-button that says "Project". Clock that and from the dropdown
-menu delect "VC++ Directories"
+button that says "Project". Click that and from the dropdown
+menu select "VC++ Directories"
 
 
 3. in the window in front of you click on "Configuration Properties"
