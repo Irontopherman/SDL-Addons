@@ -12,15 +12,18 @@ explorer and click open in file explorer, then copy paste
 the cpp and header files from the repo into there.
 
 
-2. right click on your project, click 
-properties in the dropdown menu, click on "VC++ Directories"
+2. At the top of the visual studio window there will be A
+button that says "Project". Clock that and from the dropdown
+menu delect "VC++ Directories"
 
 
-3. click on "Include Directories" and add $(ProjectDir) to the
-end of the directories. make sure you add a semicolon to the end
+3. in the window in front of you click on "Configuration Properties"
+and in Configuration Properties select "VC++ Directories". In the section
+labeled "General", click on "Include Directories". Add $(ProjectDir) to the 
+include directories.
 
 
-4. then just include it like this:
+4. then, in your c++ file, include it with this line at the beginning
 #include "Actor.hpp"
 
 
