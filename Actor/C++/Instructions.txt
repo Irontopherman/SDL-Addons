@@ -9,6 +9,8 @@ What you need to do is right click on your project, click
 properties in the dropdown menu, click on "VC++ Directories",
 click on "Include Directories" and add your path to the headers
 (should be something like "C:whatever/SDL-Addons/Actor/C++")
+then just include it like this:
+#include "Actor.hpp"
 
 
 ▀█▀ █▀█   █░█ █▀ █▀▀
@@ -27,8 +29,6 @@ Scale,
 
 █▀▀ ▄█▄ ▄█▄
 █▄▄ ░▀░ ░▀░
-
-
 
 
 Functions: 
