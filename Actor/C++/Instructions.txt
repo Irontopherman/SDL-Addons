@@ -22,8 +22,12 @@ and in Configuration Properties select "VC++ Directories". In the section
 labeled "General", click on "Include Directories". Add $(ProjectDir) to the 
 include directories.
 
+4. Finally, go back to the solution explorer and right click on the section
+labeled "Header Files", click "Add Existing Item" and select Actor.hpp and 
+Actor.cpp. 
 
-4. then, in your c++ file, include it with this line at the beginning
+4. to actually use this in your project, at the very beginning where you
+include everytihng else, type 
 #include "Actor.hpp"
 
 
@@ -134,7 +138,5 @@ Functions:
     void drawcollide(SDL_Renderer* renderer, int R, int G, int B, int A = 255);
 
     
-    basic rectangle collision, ignores angle, bitmap, and direction.
-    
-
+    basic rectangle collision. ignores angle, bitmap, and direction.
     bool rectcollide(SDL_FRect colliderect);
