@@ -101,6 +101,8 @@ Functions:
 
     bool testbasiccollide(Actor& collider);
     
+    this shows what goodcollide does if it is called
+    void showcollide(SDL_Renderer* ren)
 
     finds all points where two actors intersect with a rectangle on
     the outside of the image then loops through all collision points

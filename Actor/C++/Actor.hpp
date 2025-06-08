@@ -55,17 +55,18 @@ public:
     std::string dir();
     float x;//x position of actor 
     float y;//y position of actor
-    float angle = 0.0;//continues angle, not wrapped to 360
-    float scale;//**WARNING** THIS VALUE IS SENSITIVE AS SHIT, SETTING TO TO BELOW 0.05 WILL RESULT WITH UNDEFINED BEHAVIOR. USE RENDERSCALE FOR SMALL RENDERING
+    float angle = 0.0;//**note: angle is not wrapped to 360
+    float scale;//the scale of the actor
     Atype actortype = normal;// actortype for customization and performance
     std::string path = dir();//final string path
-
+    std::string oldimgname = path;//other path for comparing
     SDL_Surface* imgsize = IMG_Load(path.c_str());// surface for getting image size quickly, you cloud use and loaded surface, but this is better for debugging
     SDL_Surface* pixeldata = IMG_Load(path.c_str());//sirfacre with image data for access
     SDL_Texture* rendertextture;// texture to be rendered to the screen
     SDL_FRect coords = { x,y,100,100 };// coridanted stored in SDL_FRect
     //string pathhalf = "";
     //int lastsec = 0;
+    bool animated=0;
     float width = 0;//width of the actor's image
     float height = 0;//height of the actor's image
     //int againtime = 0;
@@ -170,6 +171,8 @@ public:
     better for lines than default function.
     */
     void drawline(SDL_Renderer* renderer, SDL_FPoint p1, SDL_FPoint p2, float thickness, SDL_FColor color);
+
+    void showcollide(SDL_Renderer* ren);
 
     /*
     simple algebra function to see if

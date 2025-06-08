@@ -432,6 +432,13 @@ void Actor::drawline(SDL_Renderer* renderer, SDL_FPoint p1, SDL_FPoint p2, float
     SDL_RenderGeometry(renderer, nullptr, verts, 4, indices, 6);
 }
 
+bool showgoodcollide;
+SDL_Renderer* drawcolrenderer;
+void Actor::showcollide(SDL_Renderer* ren)
+{
+    showgoodcollide = 1;
+    drawcolrenderer = ren;
+}
 /*
 simple algebra function to see if
 two lines intersect, used in goodcollide
@@ -681,15 +688,16 @@ bool Actor::goodcollide(Actor& collider)
         {
             l2p1 = { othercorners[alllines].x, othercorners[alllines].y };
             l2p2 = { othercorners[(alllines + 1) % 4].x, othercorners[(alllines + 1) % 4].y };
-            /*
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderLine(renderer, l2p1.x, l2p1.y, l2p2.x, l2p2.y);
-            drawline(renderer, l2p1, l2p2, 1, { 255,255,255 });
-            SDL_SetRenderDrawColor(renderer, 128, 128, 255, 255);
-            SDL_SetRenderDrawColor(renderer, collsides*55, collsides*50, collsides*10,255);
-            SDL_RenderLine(renderer, l1p1.x, l1p1.y, l1p2.x, l1p2.y);
-            drawline(renderer, l1p1, l1p2, 1, { 255,255,255 });
-            */
+            if (showgoodcollide)
+            {
+                SDL_SetRenderDrawColor(drawcolrenderer, 255, 255, 255, 255);
+                SDL_RenderLine(drawcolrenderer, l2p1.x, l2p1.y, l2p2.x, l2p2.y);
+                drawline(drawcolrenderer, l2p1, l2p2, 1, { 255,255,255 });
+                SDL_SetRenderDrawColor(drawcolrenderer, 128, 128, 255, 255);
+                SDL_SetRenderDrawColor(drawcolrenderer, collsides * 55, collsides * 50, collsides * 10, 255);
+                SDL_RenderLine(drawcolrenderer, l1p1.x, l1p1.y, l1p2.x, l1p2.y);
+                drawline(drawcolrenderer, l1p1, l1p2, 1, { 255,255,255 });
+            }
             if (lineintersect(l1p1, l1p2, l2p1, l2p2, collidepoint))
             {
                 collidepoints[colamount] = collidepoint;
@@ -767,8 +775,8 @@ bool Actor::goodcollide(Actor& collider)
     {
         collider.scrn_to_bmp_px((int)allinsidepoints[drawinside].x, (int)allinsidepoints[drawinside].y, o_bmp_x, o_bmp_y);
         this->scrn_to_bmp_px((int)allinsidepoints[drawinside].x, (int)allinsidepoints[drawinside].y, bmp_x, bmp_y);
-        //SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        //SDL_RenderPoint(renderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
+        SDL_SetRenderDrawColor(drawcolrenderer, 0, 255, 0, 255);
+        SDL_RenderPoint(drawcolrenderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
         if (bmp_x >= 0 && bmp_x < bmp_width &&
             bmp_y >= 0 && bmp_y < bmp_height &&
             o_bmp_x >= 0 && o_bmp_x < o_bmp_width &&
@@ -783,10 +791,13 @@ bool Actor::goodcollide(Actor& collider)
                 //this caps the max values because my lazy ass doesnt want to
                 //figure out what's wrong with this function
                 if (collider.bitmask[o_index] && this->bitmask[index]) {
-                    //SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-                    //SDL_RenderPoint(renderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
+                    if (showgoodcollide)
+                    {
+                        SDL_SetRenderDrawColor(drawcolrenderer, 255, 0, 0, 255);
+                        SDL_RenderPoint(drawcolrenderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
+                    }
                     collides = true;
-                    break;
+                    if (!showgoodcollide) break;
                 }
             }
         }
@@ -853,10 +864,10 @@ void Actor::maketextture(SDL_Renderer* renderer)
 {
 
     coords = { x,y,width * scale,height * scale };
-    if (rendertextture != oldrendertext)
-    {
-        rendertextture = IMG_LoadTexture(renderer, path.c_str());
-    }
+    if (!animated) return;
+    if (imgname != oldimgname) path = dir();
+    rendertextture = IMG_LoadTexture(renderer, path.c_str());
+    oldimgname = imgname;
     oldrendertext = rendertextture;
 }
 void Actor::renderdebug(SDL_Renderer* renderer)
@@ -865,14 +876,14 @@ void Actor::renderdebug(SDL_Renderer* renderer)
     float renderscale_y;
     SDL_GetRenderScale(renderer, &renderscale_x, &renderscale_y);
     SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-    SDL_FColor color = { 255, 0, 0, 255 };
+    SDL_FColor color = { 255, 0, 255, 255 };
     collide1[0].color = color;
     collide1[1].color = color;
     collide1[2].color = color;
     int textscale = 1;
     SDL_RenderGeometry(renderer, NULL, collide1, 3, NULL, 0);
     SDL_RenderGeometry(renderer, NULL, collide2, 3, NULL, 0);
-    SDL_SetRenderDrawColor(renderer, 255, 100, 100, 100);
+    SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
     SDL_RenderRect(renderer, &corner1);//red
     SDL_SetRenderScale(renderer, (float)textscale, (float)textscale);
     SDL_RenderDebugText(renderer, corner1.x * renderscale_x - textscale, corner1.y * renderscale_y - textscale, "corner1");
@@ -911,13 +922,18 @@ TL;DR: draws actor to renderer
 void Actor::quickdraw(SDL_Renderer* renderer)
 {
     using namespace std;
+    if (this->imgsize == nullptr)
+    {
+        SDL_Log("Check the image name. did you forget.png?");
+        return;
+    }
     if (bitmask == vector<bool>(static_cast<size_t>(imgsize->w) * static_cast<size_t>(imgsize->h), false) && actortype >= normal)
     {
         /*this checks if the bitmap is
         unitilized and inits it if so*/
         this->init_good_collide();
     }
-    if (old_x != x || old_y != y || old_angle != angle || !notcalculated) rotatecollide();
+    if (old_x != x || old_y != y || old_angle != angle || notcalculated) rotatecollide();
     maketextture(renderer);
     imgcenter = { width / 2 * scale,height / 2 * scale };
     if (dodrawcollide) renderdebug(renderer);
