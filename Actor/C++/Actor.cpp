@@ -771,7 +771,7 @@ bool Actor::goodcollide(Actor& collider)
     {SDL_SetRenderDrawColor(renderer, 125, 0, 255, 255);
         SDL_RenderPoint(renderer, drawpoly2.x, drawpoly2.y);}
     */
-    for (int drawinside = (int)(allinsidepoints = getallpolypoints(finalpoly, 0.5f)).size() - 1; drawinside >= 0; drawinside--)
+    for (int drawinside = (int)(allinsidepoints = getallpolypoints(finalpoly, 1.0f)).size() - 1; drawinside >= 0; drawinside--)
     {
         collider.scrn_to_bmp_px((int)allinsidepoints[drawinside].x, (int)allinsidepoints[drawinside].y, o_bmp_x, o_bmp_y);
         this->scrn_to_bmp_px((int)allinsidepoints[drawinside].x, (int)allinsidepoints[drawinside].y, bmp_x, bmp_y);
