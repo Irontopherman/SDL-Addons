@@ -64,16 +64,20 @@ void scalechange()
         if (scaleshower.scale < 2.5) angleincrease = 1;
     }
 }
+void rendertext()
+{
+    SDL_SetRenderScale(ren, 3, 3);
+    SDL_RenderDebugText(ren, 12.5 + offset, 120, "Angle");
+    SDL_RenderDebugText(ren, 100 + offset, 120, "Scale");
+    SDL_RenderDebugText(ren, 175 + offset, 120, "Collision");
+    SDL_RenderDebugText(ren, 50 + offset, 50, "Animation");
+    SDL_RenderDebugText(ren, 100, 10, "Features include:");
+    SDL_SetRenderScale(ren, 2, 2);
+}
 void showfeatures()
 {
     animshower.animated = true;
-    SDL_SetRenderScale(ren, 3, 3);
-    SDL_RenderDebugText(ren, 12.5+offset, 120, "Angle");
-    SDL_RenderDebugText(ren, 100+offset, 120, "Scale");
-    SDL_RenderDebugText(ren, 175+offset, 120, "Collision");
-    SDL_RenderDebugText(ren, 50+offset, 50, "Animation");
-    SDL_RenderDebugText(ren, 100, 10, "Features include:");
-    SDL_SetRenderScale(ren, 2, 2);
+    rendertext();
     animshower.quickdraw(ren);
     angleshower.quickdraw(ren);
     angleshower.angle += 2;
@@ -81,8 +85,15 @@ void showfeatures()
     scalechange();
     bitmaskshower.quickdraw(ren);
     bitmaskcollider.quickdraw(ren);
-    bitmaskshower.showcollide(ren);
+    bitmaskshower.angle++;
+    //bitmaskshower.showcollide(ren);
     bitmaskshower.goodcollide(bitmaskcollider);
+}
+void rendernote()
+{
+    SDL_RenderDebugText(ren, 10, 350, "Note: this will be resource intensive for learning. disable");
+    SDL_RenderDebugText(ren, 10, 365, "the showcollide and goocollide functions if you want a");
+    SDL_RenderDebugText(ren, 10, 380, "performance gauge, since they are for show.");
 }
 int64_t nextframe=0;
 int frame = 1;
@@ -95,9 +106,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     SDL_SetRenderScale(ren, 2, 2);
     SDL_RenderDebugText(ren, 10, 10, "Escape To Quit");
     SDL_RenderDebugText(ren, 10, 20, "Space For Features");
-    SDL_RenderDebugText(ren, 10, 350, "Note: this will be resource intensive for learning. disable");
-    SDL_RenderDebugText(ren, 10, 365, "the showcollide and goocollide functions if you want a");
-    SDL_RenderDebugText(ren, 10, 380, "performance gauge.");
+    rendernote();
     smoothinput();
 
     if(show)showfeatures();

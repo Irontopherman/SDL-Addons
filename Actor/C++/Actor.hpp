@@ -142,7 +142,7 @@ public:
     std::vector<bool> makebitmask();
     std::vector<bool>bitmask = makebitmask();// the bitmaks if a 1D vector bool that stores if each pixel of a model has an alpha channel or not, initlized to all false
     //I AM WRITING THIS IN VIM!
-
+    SDL_ScaleMode scaletype = SDL_SCALEMODE_NEAREST;
     /*
     sees if a single triangle collides with another triangle and returen the first collision point as a pointer.
     */

@@ -943,6 +943,7 @@ void Actor::quickdraw(SDL_Renderer* renderer)
         setsize = true;
     }
     if (actortype != simple) {
+        SDL_SetTextureScaleMode(rendertextture, scaletype);
         SDL_RenderTextureRotated(renderer, rendertextture, NULL, &coords, angle, &imgcenter, SDL_FLIP_NONE);
     }
     else {
