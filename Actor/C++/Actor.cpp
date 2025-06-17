@@ -33,6 +33,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 Image name, x, y, angle, scale, actor type
 */
 
+/*
+loops though cached textures to see if it is there and if so it returns the spot, if not it load it into cached textures;
+*/
 
 std::string Actor::dir()//creates directory 
 {
@@ -765,43 +768,47 @@ bool Actor::goodcollide(Actor& collider)
 
     /*
     for (SDL_FPoint drawpoly : polygon)
-    {SDL_SetRenderDrawColor(renderer, 125, 125, 0, 255);
-        SDL_RenderPoint(renderer, drawpoly.x, drawpoly.y);}
+    {SDL_SetRenderDrawColor(drawcolrenderer, 125, 125, 0, 255);
+        SDL_RenderPoint(drawcolrenderer, drawpoly.x, drawpoly.y);}
     for (SDL_FPoint drawpoly2 : finalpoly)
-    {SDL_SetRenderDrawColor(renderer, 125, 0, 255, 255);
-        SDL_RenderPoint(renderer, drawpoly2.x, drawpoly2.y);}
+    {SDL_SetRenderDrawColor(drawcolrenderer, 125, 0, 255, 255);
+        SDL_RenderPoint(drawcolrenderer, drawpoly2.x, drawpoly2.y);}
     */
     for (int drawinside = (int)(allinsidepoints = getallpolypoints(finalpoly, 1.0f)).size() - 1; drawinside >= 0; drawinside--)
     {
         collider.scrn_to_bmp_px((int)allinsidepoints[drawinside].x, (int)allinsidepoints[drawinside].y, o_bmp_x, o_bmp_y);
         this->scrn_to_bmp_px((int)allinsidepoints[drawinside].x, (int)allinsidepoints[drawinside].y, bmp_x, bmp_y);
-        SDL_SetRenderDrawColor(drawcolrenderer, 0, 255, 0, 255);
-        SDL_RenderPoint(drawcolrenderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
-        if (bmp_x >= 0 && bmp_x < bmp_width &&
-            bmp_y >= 0 && bmp_y < bmp_height &&
-            o_bmp_x >= 0 && o_bmp_x < o_bmp_width &&
-            o_bmp_y >= 0 && o_bmp_y < o_bmp_height)
+        //SDL_SetRenderDrawColor(drawcolrenderer, 0, 255, 0, 255);
+        //SDL_RenderPoint(drawcolrenderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
+        int64_t index = (int64_t)bmp_y * (int64_t)width + (int64_t)bmp_x;
+        int64_t o_index = (int64_t)o_bmp_y * (int64_t)collider.width + (int64_t)o_bmp_x;
+        //std::cout << "index1: " << index << " bitmask size: " << this->bitmask.size()
+        //    << "  index2: " << o_index << " bitmask size: " << collider.bitmask.size() << "\n";
+        SDL_SetRenderDrawBlendMode(drawcolrenderer, SDL_BLENDMODE_BLEND);
+        if (o_index < collider.bitmask.size() && index < this->bitmask.size())
         {
-            int64_t index = (int64_t)bmp_y * (int64_t)width + (int64_t)bmp_x;
-            int64_t o_index = (int64_t)o_bmp_y * (int64_t)collider.width + (int64_t)o_bmp_x;
-            //std::cout << "index1: " << index << " bitmask size: " << this->bitmask.size()
-            //    << "  index2: " << o_index << " bitmask size: " << collider.bitmask.size() << "\n";
-            if (o_index < (signed)collider.bitmask.size() && index < (signed)this->bitmask.size())
+            //this caps the max values because my lazy ass doesnt want to
+            //figure out what's wrong with this function
+            if (showgoodcollide)
             {
-                //this caps the max values because my lazy ass doesnt want to
-                //figure out what's wrong with this function
-                if (collider.bitmask[o_index] && this->bitmask[index]) {
-                    if (showgoodcollide)
-                    {
-                        SDL_SetRenderDrawColor(drawcolrenderer, 255, 0, 0, 255);
-                        SDL_RenderPoint(drawcolrenderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
-                    }
-                    collides = true;
-                    if (!showgoodcollide) break;
+                SDL_SetRenderDrawColor(drawcolrenderer, 0, 255, 0, 125);
+                SDL_RenderPoint(drawcolrenderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
+            }
+            if (collider.bitmask[o_index] && this->bitmask[index]) {
+                collides = true;
+                //break;
+                if (showgoodcollide)
+                {
+                    //SDL_SetRenderDrawBlendMode(drawcolrenderer, SDL_BLENDMODE_MOD);
+                    SDL_SetRenderDrawColor(drawcolrenderer, 255, 0, 0, 125);
+                    SDL_RenderPoint(drawcolrenderer, allinsidepoints[drawinside].x, allinsidepoints[drawinside].y);
                 }
+                if (!showgoodcollide) break;
             }
         }
+        
     }
+    SDL_SetRenderDrawBlendMode(drawcolrenderer, SDL_BLENDMODE_NONE);
     /*
     SDL_SetRenderDrawColor(renderer, 100, 0, 100, 255);SDL_FPoint p1 = { collider.corner1.x, collider.corner1.y };
     SDL_FPoint p2 = { collider.corner2.x, collider.corner2.y };SDL_FPoint p3 = { collider.corner3.x, collider.corner3.y };
@@ -857,6 +864,75 @@ void Actor::update(SDL_Renderer* renderer)
     old_y = y;
     old_angle = angle;
 }
+void Actor::overwritebuff0(const char* pathtothing, SDL_Renderer* ren)
+{
+    //SDL_Log("Cache full, replacing index 0");
+    if (cachedtextures[0]) {
+        SDL_DestroyTexture(cachedtextures[0]);
+        cachedtextures[0] = nullptr; // avoid dangling pointer
+    }
+    if (cachedtexturesnames[0]) {
+        free((void*)cachedtexturesnames[0]);
+        cachedtexturesnames[0] = nullptr;
+    }
+    //SDL_Log("--------LOADING A TEXTURE FROM PATH 1----------------");
+    SDL_Texture* newtex = IMG_LoadTexture(ren, pathtothing);
+    if (!newtex) {
+        SDL_Log("Failed to load fallback texture: %s", SDL_GetError());
+        return;
+    }
+
+    cachedtextures[0] = newtex;
+    cachedtexturesnames[0] = _strdup(pathtothing);
+}
+int Actor::findcachedtexture(const char* pathtothing, SDL_Renderer* ren)
+{
+    if (!cachefilled) {
+        std::fill(cachedtextures, cachedtextures + 256, nullptr);
+        std::fill(cachedtexturesnames, cachedtexturesnames + 256, nullptr);
+        cachefilled = true;
+        //SDL_Log("filling cache");
+    }
+
+    for (int alltexts = 255; alltexts >= 0; alltexts--)
+    {
+        //std::cout << " C" << alltexts;
+        if (cachedtexturesnames[alltexts] && strcmp(cachedtexturesnames[alltexts], pathtothing) == 0)
+        {
+            //SDL_Log("checking stage");
+            //std::cout << "Comparing: " << cachedtextures[alltexts] << " with " << findtext << std::endl;
+            //std::cout << this->imgname << "  F" << alltexts <<"\n\n";
+            return alltexts;
+        }
+    }
+    //std::cout << "\n";
+    for (int loadtext = 255; loadtext >= 0; loadtext--)
+    {
+        //std::cout << " L" << loadtext;
+        if (!cachedtexturesnames[loadtext] || cachedtexturesnames[loadtext][0] == '\0')
+        {
+            //cachedtextures[loadtext] = IMG_LoadTexture(ren, pathtothing);
+            SDL_Texture* newtex = IMG_LoadTexture(ren, pathtothing);
+            //SDL_Log("--------LOADING A TEXTURE FROM PATH 2----------------");
+            if (!newtex) {
+                //SDL_Log("Failed to load texture: %s", SDL_GetError());
+                return -1;  // or another error code; caller should handle this!
+            }
+            cachedtextures[loadtext] = newtex;
+            cachedtexturesnames[loadtext] = _strdup(pathtothing);
+            //SDL_Log("loading stage");
+            //std::cout << this->imgname << "  F" << loadtext << "\n\n";
+            return loadtext;
+        }
+        else continue;
+    }
+
+    overwritebuff0(pathtothing, ren);
+    //SDL_Log("adding texture to cache");
+
+    return 0;
+}
+
 /*
 creates the texture of the actor that will be drawn to the screen if the texture has changed
 */
@@ -865,8 +941,26 @@ void Actor::maketextture(SDL_Renderer* renderer)
 
     coords = { x,y,width * scale,height * scale };
     if (!animated) return;
-    if (imgname != oldimgname) path = dir();
-    rendertextture = IMG_LoadTexture(renderer, path.c_str());
+    if (oldimgname != imgname) path = dir();
+    else return;
+    //SDL_DestroyTexture(rendertextture);
+    //rendertextture = cachedtextures[findcachedtexture(path.c_str(), renderer)];
+    int texIndex = findcachedtexture(path.c_str(), renderer);
+    if (texIndex != -1) {
+        //std::cout << "\n1 " << SDL_GetError()<<"\n";
+        rendertextture = cachedtextures[texIndex];
+        //std::cout << "2 " << SDL_GetError();
+    }
+    else {
+        SDL_Log("Failed to load texture: %s", path.c_str());
+        rendertextture = nullptr; // or fallback texture
+    }
+    //std::cout << findcachedtexture(rendertextture, renderer);
+    //int textpos = findcachedtexture(rendertextture, renderer);
+    //rendertextture = IMG_LoadTexture(renderer, path.c_str());
+    //std::cout << textpos<<"\n";
+    //rendertextture = cachedtextures[textpos];
+
     oldimgname = imgname;
     oldrendertext = rendertextture;
 }
@@ -927,13 +1021,16 @@ void Actor::quickdraw(SDL_Renderer* renderer)
         SDL_Log("Check the image name. did you forget.png?");
         return;
     }
+    
     if (bitmask == vector<bool>(static_cast<size_t>(imgsize->w) * static_cast<size_t>(imgsize->h), false) && actortype >= normal)
     {
         /*this checks if the bitmap is
         unitilized and inits it if so*/
         this->init_good_collide();
     }
+    
     if (old_x != x || old_y != y || old_angle != angle || notcalculated) rotatecollide();
+
     maketextture(renderer);
     imgcenter = { width / 2 * scale,height / 2 * scale };
     if (dodrawcollide) renderdebug(renderer);
@@ -942,13 +1039,10 @@ void Actor::quickdraw(SDL_Renderer* renderer)
         setWD(renderer);
         setsize = true;
     }
-    if (actortype != simple) {
-        SDL_SetTextureScaleMode(rendertextture, scaletype);
-        SDL_RenderTextureRotated(renderer, rendertextture, NULL, &coords, angle, &imgcenter, SDL_FLIP_NONE);
-    }
-    else {
-        SDL_RenderTexture(renderer, rendertextture, NULL, &coords);
-    }
+    
+    SDL_SetTextureScaleMode(rendertextture, scaletype);
+    SDL_RenderTextureRotated(renderer, rendertextture, NULL, &coords, angle, &imgcenter, SDL_FLIP_NONE);
+    
     old_x = x;
     old_y = y;
     old_angle = angle;

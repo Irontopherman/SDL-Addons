@@ -3,9 +3,12 @@
 #include <cmath>
 #include <iostream>
 #include <filesystem>
+#include <vector>
 //CUSTOM API
 //CUSTOM API
 //CUSTOM API
+
+
 /*
 Hello source code inspectors and people
 who are confused on the documentation!
@@ -17,6 +20,7 @@ i am BAD at writing comments
 at writing comments which is when
 i am confused myself)
 */
+
 
 /*
 Atype is a appbreviation of Actor Type, because it specifies if the acotr should have (somewhat) complex math and physics connected to it.
@@ -110,7 +114,23 @@ public:
     // To implement good hitboxes you will have a script that makes a mesh of triangles based on which pixels have opacity and which do not.
 
     SDL_FRect pointrect;//used for showing collison points in goodcollide() function
+    /*
+    default texture cachedtextures will be filled with
+    */
+    SDL_Texture* defaultfill;
 
+    bool cachefilled = false;
+    /*
+    names of texture names, for comparison during cacheing
+    */
+    const char* cachedtexturesnames[256];
+    
+    /*
+    past SDL_Textures rendered, stores for efficency, so they only need to be loaded once.
+    */
+    SDL_Texture* cachedtextures[256];
+    int findcachedtexture(const char* pathtothing, SDL_Renderer* ren);
+    void overwritebuff0(const char* pathtothing, SDL_Renderer* ren);
     /*
     float centerX, centerY;
     float dx, dy;
