@@ -31,6 +31,13 @@ include everytihng else, type
 #include "Actor.hpp"
 
 
+█▀█ █▀▀ ▄▀█ █▀▄   ▀█▀ █░█ █ █▀
+█▀▄ ██▄ █▀█ █▄▀   ░█░ █▀█ █ ▄█
+All images are loaded from the images directory in the current working directory.
+If it does not find this directory then it will not crash the program, but it will
+flood the console with error messages.
+
+
 ▀█▀ █▀█   █░█ █▀ █▀▀
 ░█░ █▄█   █▄█ ▄█ ██▄
 
