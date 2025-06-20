@@ -4,27 +4,22 @@
 █ █░▀█ █▄▄ █▄▄ █▄█ █▄▀ ██▄
 Visual Studio:
 To include this in visual studio is very simple.
-**SDL3 and SDL3_image are dependiencies and 
-this will not function without it**
+**you need SDL3 and SDL3_image installed and 
+included correctly for this to work; i would 
+reccomend running hello.c in SDL before including 
+this, just to make sure your installation is correct.**
 
-1. you need to copy the headers into the directory.
-To do this you right click on the solution in solution
-explorer and click open in file explorer, then copy paste 
-the cpp and header files from the repo into there.
-
-
-2. At the top of the visual studio window there will be A
+1. At the top of the visual studio window there will be A
 button that says "Project". Click that and from the dropdown
 menu select "VC++ Directories"
 
-
-3. in the window in front of you click on "Configuration Properties"
+2. in the window in front of you click on "Configuration Properties"
 and in Configuration Properties select "VC++ Directories". In the section
-labeled "General", click on "Include Directories". Add $(ProjectDir) to the 
-include directories.
+labeled "General", click on "Include Directories". Add your path to the header files 
+to the include directories .e.g "C:something/SDL-Addons/Actor/C++/".
 
-4. Finally, go back to the solution explorer and right click on the section
-labeled "Header Files", click "Add Existing Item" and select Actor.hpp and 
+3. Finally, go back to the solution explorer and right click on the section
+labeled "Header Files", click "Add Existing Item" and select Actor.h and 
 Actor.cpp. 
 
 4. to actually use this in your project, at the very beginning where you
