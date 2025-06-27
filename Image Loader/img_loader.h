@@ -116,11 +116,13 @@ static inline enum ptr_value valid_ptr_impl(void* ptr, bool hang_or_no, int call
 }
 }
 #define valid_ptr(ptr, hang_or_no) valid_ptr_impl(ptr, hang_or_no, __LINE__, __FILE__)
+/*
 typedef struct {
 	image* target;
 	batch** assignedbatch;
 	SDL_Renderer* ren;
 } addbatch;
+*/
 
 batch* allbatches;
 int64_t numofbatches = 1;
@@ -133,7 +135,7 @@ int maketexture(image* target, SDL_Renderer* renderer);
 void draw(image* target, SDL_Renderer* renderer);
 void benchdraw(SDL_Renderer* renderer, image* thingtodraw);
 void addtobatch(image* target);
-void getbatchnames(char* namefiller);
+//void getbatchnames(char* namefiller);
 void drawbatch(const char* batchname, SDL_Renderer* ren);
 void benchbatchdraw(SDL_Renderer* ren, image* drawthis);
 void resetbatch(const char* batchname);

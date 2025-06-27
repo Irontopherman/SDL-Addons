@@ -167,6 +167,7 @@ void dir(image* target, char* path, int64_t pathSize) {
         //SDL_Log(target->imgname);
         strcat_s(buffer, sizeof(buffer), target->imgname);
         strcpy_s(path, pathSize, buffer);
+        SDL_Log("dir finshed, result:%s", path);
     }
     else {
         perror("GetCurrentDir failed");
@@ -184,6 +185,7 @@ void create_img(image* targetimg, const char imgname[pathlen], double x, double 
     targetimg->imgsize = IMG_Load(targetimg->path);
     targetimg->setsize = false;
     targetimg->textloaded = false;
+    SDL_Log("Image Made with name:%s", imgname);
 }
 void setWD(image* target, SDL_Renderer* renderer)
 {
@@ -199,38 +201,22 @@ void setWD(image* target, SDL_Renderer* renderer)
     target->height = (float)target->imgsize->h;
     target->setsize = false;
 }
-void benchdraw(SDL_Renderer* renderer, image* thingtodraw) {
-    uint64_t start = SDL_GetPerformanceCounter();
-
-    SDL_FRect dst = { 0, 0, 64, 64 };
-    SDL_FPoint center = { 32, 32 };
-
-    for (int i = 0; i < 10000; ++i) {
-        dst.x = (float)(rand() % 800);
-        dst.y = (float)(rand() % 600);
-        double angle = rand() % 360;
-        float scale = rand() % 10;
-        thingtodraw->angle = angle;
-        thingtodraw->x = dst.x;
-        thingtodraw->y = dst.y;
-        thingtodraw->scale = scale;
-        draw(thingtodraw, renderer);
-        //SDL_RenderTextureRotated(renderer, texture, NULL, &dst, angle, &center, SDL_FLIP_NONE);
-    }
-
-    uint64_t end = SDL_GetPerformanceCounter();
-    double elapsed_ms = (double)(end - start) * 1000.0 / SDL_GetPerformanceFrequency();
-
-    SDL_Log("rendered 10000 rotated textures in %.3f ms\n", elapsed_ms);
-}
 int maketexture(image* target, SDL_Renderer* renderer)
 {
     target->imgcenter = (SDL_FPoint){ target->width / 2 * target->scale,target->height / 2 * target->scale };
     target->coords = (SDL_FRect){ target->x,target->y,target->width * target->scale,target->height * target->scale };
-    if (target->imgname != target->oldimgname) dir(target, target->path, 1024);
+    if (target->imgname != target->oldimgname) { 
+        dir(target, target->path, pathlen);
+        SDL_Log("target width:%i, target height:%i", target->width, target->height);
+        //*target->path = "C:\\Users\\chris\\source\\repos\\Tic Tac Toe\\images\\drawX.png";
+        target->rendertextture = IMG_LoadTexture(renderer, target->path);
+        SDL_SetTextureScaleMode(target->rendertextture, SDL_SCALEMODE_NEAREST);
+        setWD(target, renderer);
+        //target->imgsize = IMG_Load(target->path);
+    }
+    //SDL_Log("loading image path:%s", target->path);
 
-
-    if (target->rendertextture != target->oldrendertext || target->textloaded)target->rendertextture = IMG_LoadTexture(renderer, target->path);
+    //if (target->rendertextture != target->oldrendertext || target->textloaded)target->rendertextture = IMG_LoadTexture(renderer, target->path);
     if (target->textloaded) target->textloaded = false;
 
 
@@ -254,6 +240,30 @@ void draw(image* target, SDL_Renderer* renderer)
     }
     //SDL_RenderTexture(renderer, target->rendertextture, &target->coords, NULL);
     SDL_RenderTextureRotated(renderer, target->rendertextture, NULL, &target->coords, target->angle, &target->imgcenter, SDL_FLIP_NONE);
+}
+void benchdraw(SDL_Renderer* renderer, image* thingtodraw) {
+    uint64_t start = SDL_GetPerformanceCounter();
+
+    SDL_FRect dst = { 0, 0, 64, 64 };
+    SDL_FPoint center = { 32, 32 };
+    int drawamount = 10000;
+    for (int i = 0; i < drawamount; ++i) {
+        dst.x = (float)(rand() % 800);
+        dst.y = (float)(rand() % 600);
+        double angle = rand() % 360;
+        float scale = rand() % 10;
+        thingtodraw->angle = angle;
+        thingtodraw->x = dst.x;
+        thingtodraw->y = dst.y;
+        thingtodraw->scale = scale;
+        draw(thingtodraw, renderer);
+        //SDL_RenderTextureRotated(renderer, texture, NULL, &dst, angle, &center, SDL_FLIP_NONE);
+    }
+
+    uint64_t end = SDL_GetPerformanceCounter();
+    double elapsed_ms = (double)(end - start) * 1000.0 / SDL_GetPerformanceFrequency();
+
+    SDL_Log("rendered %i rotated textures in %.3f ms\n", drawamount, elapsed_ms);
 }
 //ORINGAL DRAW FUNCTIONS END---ORINGAL DRAW FUNCTIONS END---ORINGAL DRAW FUNCTIONS END---ORINGAL DRAW FUNCTIONS END---ORINGAL DRAW FUNCTIONS END---ORINGAL DRAW FUNCTIONS END---
 void resetbatch(const char* batchname)
@@ -394,7 +404,7 @@ void addnewbatch(image* target, batch** assignedbatch, SDL_Renderer* ren)
     batch *tempalloc = realloc(allbatches, (numofbatches + 1) * sizeof(batch));
     if (valid_ptr(tempalloc, true) !=FINE) {
         perror("could not allocate new batch");
-        free(tempalloc);
+        //free(tempalloc);
         return;
     }
     allbatches = tempalloc;
@@ -441,7 +451,7 @@ void addnewbatch(image* target, batch** assignedbatch, SDL_Renderer* ren)
 void addtobatch(image* target, SDL_Renderer* ren)
 {
     static int64_t recent_value;
-    static char* last_target="you should not see this value";
+    static char* last_target="if you see this value something messed up";
     /*
     if (DEBUGLOGS)
     {
@@ -460,7 +470,7 @@ void addtobatch(image* target, SDL_Renderer* ren)
     }
     */
     //image s = *target;
-    SDL_Texture* tex = target->rendertextture;
+    //SDL_Texture* tex = target->rendertextture;
     batch* assignedbatch = NULLPTR;
     if (allbatches == NULL) {
         addnewbatch(target, &assignedbatch, ren);
@@ -562,14 +572,14 @@ void addtobatch(image* target, SDL_Renderer* ren)
     {
         addnewbatch(target, assignedbatch, ren);
     }
-    SDL_FPoint center = target->imgcenter;
-    float angle_rad = target->angle * (3.1415926535f / 180.0f);
+    //SDL_FPoint center = target->imgcenter;
+    float angle_rad = target->angle * (3.1415926535 / 180.0f);
     float cos_a = cosf(angle_rad);
     float sin_a = sinf(angle_rad);
     if (target->width == 0)
     {
         setWD(target, ren);
-        if (DEBUGLOGS)SDL_Log("SETTING WODTH HEIGHT, SHOULD HAPPEN ONCe, POSSIBLE MEMORY LEAK HERE");
+        //if (DEBUGLOGS)SDL_Log("SETTING WIDTH AND HEIGHT, SHOULD HAPPEN ONCE, POSSIBLE MEMORY LEAK HERE");
     }
     float w = target->width * target->scale;
     float h = target->height * target->scale;
@@ -583,10 +593,10 @@ void addtobatch(image* target, SDL_Renderer* ren)
 
     SDL_FPoint world[4];
     for (int j = 0; j < 4; ++j) {
-        float x = local[j].x;
-        float y = local[j].y;
-        world[j].x = target->x + (x * cos_a - y * sin_a);
-        world[j].y = target->y + (x * sin_a + y * cos_a);
+        //float x = local[j].x;
+        //float y = local[j].y;
+        world[j].x = target->x + (local[j].x * cos_a - local[j].y * sin_a);
+        world[j].y = target->y + (local[j].x * sin_a + local[j].y * cos_a);
     }
     //for (int j = 0; j < 4; ++j) {
     //    SDL_Log("world[%d]: x=%.2f y=%.2f", j, world[j].x, world[j].y);
@@ -600,9 +610,6 @@ void addtobatch(image* target, SDL_Renderer* ren)
         assignedbatch->vertexspot = 4;
         if (DEBUGLOGS)SDL_Log("assignedbatch->vertexspot was at max unsigned int");
     }
-    int64_t vi = assignedbatch->vertexspot;
-    int64_t ii = assignedbatch->indicespot;
-    SDL_FColor red = { 1.f, 1.f, 1.f, 1.f};
     //red for simple re-usability
     //SDL_Log("asigndbatch size is:%lli", sizeof(*assignedbatch->vertices));
     //SDL_Log("%p", assignedbatch->vertices);
@@ -622,18 +629,18 @@ void addtobatch(image* target, SDL_Renderer* ren)
     ///if (vi >60000)vi = 1;
     //SDL_Log("vi: %lld verticies:%p", vi, assignedbatch->vertices);
     //assigned the verticies to correct world positions
-    assignedbatch->vertices[vi + 0] = (SDL_Vertex){ world[0], red, {0, 0} };
-    assignedbatch->vertices[vi + 1] = (SDL_Vertex){ world[1], red, {1, 0} };
-    assignedbatch->vertices[vi + 2] = (SDL_Vertex){ world[2], red, {1, 1} };
-    assignedbatch->vertices[vi + 3] = (SDL_Vertex){ world[3], red, {0, 1} };
+    assignedbatch->vertices[assignedbatch->vertexspot + 0] = (SDL_Vertex){ world[0], { 1.f, 1.f, 1.f, 1.f }, {0, 0} };
+    assignedbatch->vertices[assignedbatch->vertexspot + 1] = (SDL_Vertex){ world[1], { 1.f, 1.f, 1.f, 1.f }, {1, 0} };
+    assignedbatch->vertices[assignedbatch->vertexspot + 2] = (SDL_Vertex){ world[2], { 1.f, 1.f, 1.f, 1.f }, {1, 1} };
+    assignedbatch->vertices[assignedbatch->vertexspot + 3] = (SDL_Vertex){ world[3], { 1.f, 1.f, 1.f, 1.f }, {0, 1} };
 
     //assigned the indices in order for rendering
-    assignedbatch->indices[ii + 0] = vi + 0;
-    assignedbatch->indices[ii + 1] = vi + 2;
-    assignedbatch->indices[ii + 2] = vi + 1;
-    assignedbatch->indices[ii + 3] = vi + 0;
-    assignedbatch->indices[ii + 4] = vi + 3;
-    assignedbatch->indices[ii + 5] = vi + 2;
+    assignedbatch->indices[assignedbatch->indicespot + 0] = assignedbatch->vertexspot + 0;
+    assignedbatch->indices[assignedbatch->indicespot + 1] = assignedbatch->vertexspot + 2;
+    assignedbatch->indices[assignedbatch->indicespot + 2] = assignedbatch->vertexspot + 1;
+    assignedbatch->indices[assignedbatch->indicespot + 3] = assignedbatch->vertexspot + 0;
+    assignedbatch->indices[assignedbatch->indicespot + 4] = assignedbatch->vertexspot + 3;
+    assignedbatch->indices[assignedbatch->indicespot + 5] = assignedbatch->vertexspot + 2;
     //SDL_Log("adding to vertexspot and indicespot, prevoius values vrtsspot:%i, indcespt:%i", assignedbatch->vertexspot, assignedbatch->indicespot);
     //adds to these so we know how many verticies and indicies there are
     assignedbatch->vertexspot += 4;
@@ -643,19 +650,23 @@ void addtobatch(image* target, SDL_Renderer* ren)
 void benchbatchdraw(SDL_Renderer* ren, image* drawthis)
 {
     uint64_t start = SDL_GetPerformanceCounter();
-
+    static float angle = 0;
     for (int i = 0; i < 10000; ++i) {
         //draw(drawthis, ren);
-        SDL_FRect dst = { 0, 0, 64, 64 };
-        SDL_FPoint center = { 32, 32 };
-        dst.x = (float)(rand() % 800);
-        dst.y = (float)(rand() % 600);
-        double angle = rand() % 360;
-        float scale = rand() % 10;
+        //SDL_FRect dst = { 0, 0, 64, 64 };
+        //SDL_FPoint center = { 32, 32 };
+        //dst.x = (float)(rand() % 800);
+        //dst.y = (float)(rand() % 600);
+        //double angle = rand() % 360;
+        //float scale = rand() % 5;
+        //drawthis->angle = angle;
+        //drawthis->x = dst.x;
+        //drawthis->y = dst.y;
+        //drawthis->scale = scale;
+        if (angle < 360)angle += 0.1;
+        else angle = 0;
         drawthis->angle = angle;
-        drawthis->x = dst.x;
-        drawthis->y = dst.y;
-        drawthis->scale = scale;
+        drawthis->x += (angle*2)-360;
         addtobatch(drawthis, ren);
         //SDL_RenderTextureRotated(renderer, texture, NULL, &dst, angle, &center, SDL_FLIP_NONE);
     }
