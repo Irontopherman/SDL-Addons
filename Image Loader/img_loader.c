@@ -54,6 +54,7 @@ enum ptr_value valid_ptr_impl(void* ptr, bool hang_or_no, int calledline)
     }
 }
 */
+/*
 int remove_value(uintptr_t* arr, int size, uintptr_t value) {
     for (int i = 0; i < size; i++) {
         if (arr[i] == value) {
@@ -67,7 +68,7 @@ int remove_value(uintptr_t* arr, int size, uintptr_t value) {
     }
     return size; // Value not found; size unchanged
 }
-
+*/
 
 
 /*
@@ -76,7 +77,7 @@ i am an idoiot and this leaked heaps of memory (no longer does),
 so if you see some leaked pointers, maybe take a gander at my bad
 code and use some of these to figure it out. 
 */
-
+/*
 static void* leaked_mem[224000];
 int calllines[224000];
 size_t memspot = 1;
@@ -105,7 +106,7 @@ void* custom_realloc(void* ptr, size_t size)
     
     return mem;
 }
-*/
+
 void custom_free(void* ptr, int line) {
     SDL_Log("FREE CALLED");
 
@@ -122,6 +123,7 @@ void dump_bytes(void* ptr, size_t count) {
         SDL_Log("Byte[%zu] = 0x%02X", i, p[i]);
     }
 }
+
 void view_leaked()
 {
     calllines[0] = 1;
@@ -156,7 +158,7 @@ void view_leaked()
         }
     }
 }
-
+*/
 
 //ORINGAL DRAW FUNCTIONS BEGIN---ORINGAL DRAW FUNCTIONS BEGIN---ORINGAL DRAW FUNCTIONS BEGIN---ORINGAL DRAW FUNCTIONS BEGIN---ORINGAL DRAW FUNCTIONS BEGIN---ORINGAL DRAW FUNCTIONS BEGIN---
 void dir(image* target, char* path, int64_t pathSize) {
@@ -167,7 +169,7 @@ void dir(image* target, char* path, int64_t pathSize) {
         //SDL_Log(target->imgname);
         strcat_s(buffer, sizeof(buffer), target->imgname);
         strcpy_s(path, pathSize, buffer);
-        SDL_Log("dir finshed, result:%s", path);
+        //SDL_Log("dir finshed, result:%s", path);
     }
     else {
         perror("GetCurrentDir failed");
@@ -185,7 +187,7 @@ void create_img(image* targetimg, const char imgname[pathlen], double x, double 
     targetimg->imgsize = IMG_Load(targetimg->path);
     targetimg->setsize = false;
     targetimg->textloaded = false;
-    SDL_Log("Image Made with name:%s", imgname);
+    //SDL_Log("Image Made with name:%s", imgname);
 }
 void setWD(image* target, SDL_Renderer* renderer)
 {
@@ -207,7 +209,7 @@ int maketexture(image* target, SDL_Renderer* renderer)
     target->coords = (SDL_FRect){ target->x,target->y,target->width * target->scale,target->height * target->scale };
     if (target->imgname != target->oldimgname) { 
         dir(target, target->path, pathlen);
-        SDL_Log("target width:%i, target height:%i", target->width, target->height);
+        //SDL_Log("target width:%i, target height:%i", target->width, target->height);
         //*target->path = "C:\\Users\\chris\\source\\repos\\Tic Tac Toe\\images\\drawX.png";
         target->rendertextture = IMG_LoadTexture(renderer, target->path);
         SDL_SetTextureScaleMode(target->rendertextture, SDL_SCALEMODE_NEAREST);
@@ -653,20 +655,20 @@ void benchbatchdraw(SDL_Renderer* ren, image* drawthis)
     static float angle = 0;
     for (int i = 0; i < 10000; ++i) {
         //draw(drawthis, ren);
-        //SDL_FRect dst = { 0, 0, 64, 64 };
-        //SDL_FPoint center = { 32, 32 };
-        //dst.x = (float)(rand() % 800);
-        //dst.y = (float)(rand() % 600);
-        //double angle = rand() % 360;
-        //float scale = rand() % 5;
-        //drawthis->angle = angle;
-        //drawthis->x = dst.x;
-        //drawthis->y = dst.y;
-        //drawthis->scale = scale;
-        if (angle < 360)angle += 0.1;
-        else angle = 0;
+        SDL_FRect dst = { 0, 0, 64, 64 };
+        SDL_FPoint center = { 32, 32 };
+        dst.x = (float)(rand() % 800);
+        dst.y = (float)(rand() % 600);
+        double angle = rand() % 360;
+        float scale = rand() % 5;
         drawthis->angle = angle;
-        drawthis->x += (angle*2)-360;
+        drawthis->x = dst.x;
+        drawthis->y = dst.y;
+        drawthis->scale = scale;
+        //if (angle < 360)angle += 0.1;
+        //else angle = 0;
+        drawthis->angle = angle;
+        //drawthis->x += (angle*2)-360;
         addtobatch(drawthis, ren);
         //SDL_RenderTextureRotated(renderer, texture, NULL, &dst, angle, &center, SDL_FLIP_NONE);
     }
@@ -683,9 +685,9 @@ void freebatches() {
     for (int i = 0; i < numofbatches; ++i) {
         resetbatch(allbatches[i].batch_imgname);
     }
-    free(allbatches);
-    allbatches = NULL;
-    numofbatches = 0;
+    //free(allbatches);
+    //allbatches = NULL;
+    //numofbatches = 0;
     if (DEBUGLOGS)SDL_Log("FREED ALL BATCHES, LEAKED POINTERS:");
-    if (DEBUGLOGS)view_leaked();
+   // if (DEBUGLOGS)view_leaked();
 }

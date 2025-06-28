@@ -11,15 +11,15 @@
 #define pathlen 4096
 #endif
 
-#include <crtdbg.h>
-#ifdef _DEBUG
+//#include <crtdbg.h>
+//#ifdef _DEBUG
 
 //#define malloc(s) _malloc_dbg(s, _NORMAL_BLOCK, __FILE__, __LINE__)
 //#define calloc(c,s) _calloc_dbg(c,s,_NORMAL_BLOCK, __FILE__, __LINE__)
 //#define realloc(p,s) _realloc_dbg(p,s,_NORMAL_BLOCK, __FILE__, __LINE__)
 
-#define free(p) _free_dbg(p, _NORMAL_BLOCK)
-#endif
+//#define free(p) _free_dbg(p, _NORMAL_BLOCK)
+//#endif
 
 
 typedef struct{
