@@ -14,5 +14,7 @@ doesn't work perfectly
 
 currently includes
 
-Actor Class (simple drawing, collision, and other features)
+Actor Class (simple drawing, collision, and other features) C / C++
+
+Image Loader (very efficent drawing, with batched sprite drawing in progress) C
 # if you use this in your project, please credit!
