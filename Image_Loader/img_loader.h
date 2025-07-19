@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
-#include <SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 #ifdef _WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd
